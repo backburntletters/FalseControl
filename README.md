@@ -53,7 +53,7 @@ Currently available in English and Czech languages.
 
 **Please keep in mind how destructive this program can potentially be when using it. There is no way to undo. To prevent tears, click the _"Test"_ button before installing and vet the generated scripts for yourself before installing. The program doesn't prevent you from putting nonsense or something dangerous to the input boxes.**
 
-Putting a single `*` in all 5 columns is sure to destroy your computer.
+Anyone wanna try out putting `*` in all 5 columns?
 
 ## Requirements
 
@@ -67,7 +67,6 @@ windres -i resource.rc -o resource.o
 g++ -c main.cpp -o main.o -std=c++23 -luuid -mwindows -municode -static -Os -s
 g++ resource.o main.o -o "FalseControl.exe" -std=c++23 -luuid -mwindows -municode -static -Os -s
 ```
-
 
 ## Use cases
 
@@ -92,4 +91,4 @@ g++ resource.o main.o -o "FalseControl.exe" -std=c++23 -luuid -mwindows -municod
 
 _It's called FalseControl since it really only gives you a false sense of control. In reality, you shouldn't need this kind of program in the first place. But what can you do..._
 
-[preview]: preview.png
+[preview]: FalseControl.png

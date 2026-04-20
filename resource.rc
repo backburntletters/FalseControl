@@ -1,0 +1,236 @@
+#pragma code_page(65001)
+#include "resource.h"
+#include <windows.h>
+#include <commctrl.h>
+
+LANGUAGE LANG_ENGLISH, SUBLANG_DEFAULT
+
+MAINMENU MENU {
+	POPUP "&Utility" {
+		MENUITEM "List all &service names", IDR_LIST_SERVICES
+		MENUITEM "List all scheduled &tasks", IDR_LIST_TASKS
+		MENUITEM SEPARATOR
+		MENUITEM "&About", IDR_ABOUT
+	}
+}
+
+LANGUAGE LANG_ENGLISH, SUBLANG_DEFAULT
+
+IDD_MAIN DIALOG 0, 0, 574, 223
+CAPTION "FalseControl"
+MENU MAINMENU
+STYLE DS_CENTER | DS_MODALFRAME | WS_POPUPWINDOW | WS_CAPTION | WS_MINIMIZEBOX
+EXSTYLE WS_EX_APPWINDOW | WS_EX_CONTROLPARENT
+FONT 9, "MS Shell Dlg" {
+	GROUPBOX 		"Processes:", 						-1, 3, 4, 110, 189
+	AUTOCHECKBOX 	"Active", 							IDC_PROCESS_ACTIVE, 73, 1, 35, 14
+	LTEXT 			"_____________________", 			-1, 16, 163, 87, 11
+	LISTBOX 											IDC_PROCESS_LISTBOX, 8, 17, 100, 128, LBS_NOINTEGRALHEIGHT | LBS_HASSTRINGS | LBS_MULTIPLESEL | WS_VSCROLL | WS_HSCROLL | WS_TABSTOP
+	EDITTEXT 											IDC_PROCESS_EDIT, 8, 151, 73, 14, ES_AUTOHSCROLL | WS_TABSTOP
+	PUSHBUTTON 		"Add", 								IDC_PROCESS_ADD, 85, 151, 23, 14, WS_TABSTOP
+	PUSHBUTTON 		"Remove Selected", 					IDC_PROCESS_REMOVE, 25, 175, 65, 14, WS_TABSTOP
+	
+	GROUPBOX 		"Services:", 						-1, 118, 4, 110, 189
+	AUTOCHECKBOX 	"Active", 							IDC_SERVICE_ACTIVE, 188, 1, 35, 14
+	LTEXT 			"_____________________", 			-1, 131, 163, 87, 11
+	LISTBOX 											IDC_SERVICE_LISTBOX, 123, 17, 100, 128, LBS_NOINTEGRALHEIGHT | LBS_HASSTRINGS | LBS_MULTIPLESEL | WS_VSCROLL | WS_HSCROLL | WS_TABSTOP
+	EDITTEXT 											IDC_SERVICE_EDIT, 123, 151, 73, 14, ES_AUTOHSCROLL | WS_TABSTOP
+	PUSHBUTTON 		"Add", 								IDC_SERVICE_ADD, 200, 151, 23, 14, WS_TABSTOP
+	PUSHBUTTON 		"Remove Selected", 					IDC_SERVICE_REMOVE, 140, 175, 65, 14, WS_TABSTOP
+	
+	GROUPBOX 		"Scheduled tasks:", 				-1, 232, 4, 110, 189
+	AUTOCHECKBOX 	"Active", 							IDC_TASK_ACTIVE, 302, 1, 35, 14
+	LTEXT 			"_____________________", 			-1, 245, 163, 87, 11
+	LISTBOX 											IDC_TASK_LISTBOX, 237, 17, 100, 128, LBS_NOINTEGRALHEIGHT | LBS_HASSTRINGS | LBS_MULTIPLESEL | WS_VSCROLL | WS_HSCROLL | WS_TABSTOP
+	EDITTEXT 											IDC_TASK_EDIT, 237, 151, 73, 14, ES_AUTOHSCROLL | WS_TABSTOP
+	PUSHBUTTON 		"Add", 								IDC_TASK_ADD, 314, 151, 23, 14, WS_TABSTOP
+	PUSHBUTTON 		"Remove Selected", 					IDC_TASK_REMOVE, 254, 175, 65, 14, WS_TABSTOP
+	
+	GROUPBOX 		"Files/Folders:", 					-1, 346, 4, 110, 189
+	AUTOCHECKBOX 	"Active", 							IDC_PATH_ACTIVE, 416, 1, 35, 14
+	LTEXT 			"_____________________", 			-1, 359, 163, 87, 11
+	LISTBOX 											IDC_PATH_LISTBOX, 351, 17, 100, 128, LBS_NOINTEGRALHEIGHT | LBS_HASSTRINGS | LBS_MULTIPLESEL | WS_VSCROLL | WS_HSCROLL | WS_TABSTOP
+	EDITTEXT 											IDC_PATH_EDIT, 351, 151, 73, 14, ES_AUTOHSCROLL | WS_TABSTOP
+	PUSHBUTTON 		"Add", 								IDC_PATH_ADD, 428, 151, 23, 14, WS_TABSTOP
+	PUSHBUTTON 		"Remove Selected", 					IDC_PATH_REMOVE, 368, 175, 65, 14, WS_TABSTOP
+	
+	GROUPBOX 		"Registry keys:", 					-1, 460, 4, 110, 189 
+	AUTOCHECKBOX 	"Active", 							IDC_REGISTRY_ACTIVE, 530, 1, 35, 14 
+	LTEXT 			"_____________________", 			-1, 473, 163, 87, 11 
+	LISTBOX 											IDC_REGISTRY_LISTBOX, 465, 17, 100, 128, LBS_NOINTEGRALHEIGHT | LBS_HASSTRINGS | LBS_MULTIPLESEL | WS_VSCROLL | WS_HSCROLL | WS_TABSTOP
+	EDITTEXT 											IDC_REGISTRY_EDIT, 465, 151, 73, 14, ES_AUTOHSCROLL | WS_TABSTOP
+	PUSHBUTTON 		"Add", 								IDC_REGISTRY_ADD, 542, 151, 23, 14, WS_TABSTOP
+	PUSHBUTTON 		"Remove Selected", 					IDC_REGISTRY_REMOVE, 482, 175, 65, 14, WS_TABSTOP
+	
+	GROUPBOX 		"", 								-1, 3, 192, 567, 28
+	PUSHBUTTON 		"Test", 							IDC_TEST, 8, 201, 30, 14, WS_TABSTOP
+	COMBOBOX 											IDC_INTERVAL, 164, 202, 60, 298, CBS_HASSTRINGS | CBS_AUTOHSCROLL | CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+	LTEXT 			"Exec on interval:", 				-1, 108, 205, 56, 11, WS_TABSTOP
+	PUSHBUTTON 		"Install", 							IDC_INSTALL, 226, 201, 60, 14, WS_TABSTOP
+	PUSHBUTTON 		"Uninstall", 						IDC_UNINSTALL, 288, 201, 60, 14, WS_TABSTOP
+	LTEXT 			"FalseControl is currently:", 		-1, 351, 205, 86, 9
+	LTEXT 			"", 								IDC_STATUS, 429, 205, 60, 8
+}
+
+STRINGTABLE {
+	IDS_INTERVAL1,	"5 minutes"
+	IDS_INTERVAL2,	"10 minutes"
+	IDS_INTERVAL3,	"15 minutes"
+	IDS_INTERVAL4,	"20 minutes"
+	IDS_INTERVAL5,	"25 minutes"
+	IDS_INTERVAL6,	"30 minutes"
+	IDS_INTERVAL7,	"40 minutes"
+	IDS_INTERVAL8,	"50 minutes"
+	IDS_INTERVAL9,	"1 hour"
+	IDS_INTERVAL10,	"1 hour 30 minutes"
+	IDS_INTERVAL11,	"2 hours"
+	IDS_INTERVAL12,	"2 hours 30 minutes"
+	IDS_INTERVAL13,	"3 hours"
+	IDS_INTERVAL14,	"4 hours"
+	IDS_INTERVAL15,	"5 hours"
+	IDS_INTERVAL16,	"6 hours"
+	IDS_INTERVAL17,	"7 hours"
+	IDS_INTERVAL18,	"8 hours"
+	IDS_INSTALLED, "Installed"
+	IDS_UNINSTALLED, "Uninstalled"
+	IDS_ERROR, "Error"
+	IDS_SUCCESS, "Success"
+	IDS_WARNING, "Warning"
+	IDS_ERR_TEMPOPEN, "Failed to open temporary file."
+	IDS_ERR_CREATEPROCESS, "Failed to create process."
+	IDS_ERR_POWERSHELL, "Failed to open PowerShell 6.0+. Please download and install the latest available version and try again. If you already have it installed, make sure the binary folder is in PATH."
+	IDS_FIRSTWARNING, "Before installing for the first time, please double check if you haven't made any mistakes or typos. This program is potentially destructive and could lead to data loss if not handled correctly, especially when using wildcards. This message will pop-up only once."
+	IDS_INSTALL_SUCCESS, "Settings applied successfully."
+	IDS_INSTALL_FAIL, "Failed to apply and install. Are you running this program as administrator?"
+	IDS_UNINSTALL_SUCCESS, "FalseControl has been uninstalled."
+	IDS_UNINSTALL_FAIL, "Failed to uninstall FalseControl. Are you running this program as administrator?"
+	IDS_ABOUT_HEADER, "About"
+	IDS_ABOUT_TEXT, "FalseControl by backburntletters@gmail.com\n\nv1.0"
+}
+
+LANGUAGE LANG_CZECH, SUBLANG_DEFAULT
+
+MAINMENU MENU {
+	POPUP "&Nástroje" {
+		MENUITEM "Vypsat názvy všech &služeb", IDR_LIST_SERVICES
+		MENUITEM "Vypsat názvy všech &plánovaných úloh", IDR_LIST_TASKS
+		MENUITEM SEPARATOR
+		MENUITEM "&O FalseControl", IDR_ABOUT
+	}
+}
+
+IDD_MAIN DIALOG 0, 0, 574, 223
+CAPTION "FalseControl"
+MENU MAINMENU
+STYLE DS_CENTER | DS_MODALFRAME | WS_POPUPWINDOW | WS_CAPTION | WS_MINIMIZEBOX
+EXSTYLE WS_EX_APPWINDOW | WS_EX_CONTROLPARENT
+FONT 9, "MS Shell Dlg" {
+	GROUPBOX 		"Procesy:", 						-1, 3, 4, 110, 189
+	AUTOCHECKBOX 	"Aktivní", 							IDC_PROCESS_ACTIVE, 73, 1, 35, 14
+	LTEXT 			"_____________________", 			-1, 16, 163, 87, 11
+	LISTBOX 											IDC_PROCESS_LISTBOX, 8, 17, 100, 128, LBS_NOINTEGRALHEIGHT | LBS_HASSTRINGS | LBS_MULTIPLESEL | WS_VSCROLL | WS_HSCROLL | WS_TABSTOP
+	EDITTEXT 											IDC_PROCESS_EDIT, 8, 151, 73, 14, ES_AUTOHSCROLL | WS_TABSTOP
+	PUSHBUTTON 		"Přidat", 								IDC_PROCESS_ADD, 85, 151, 23, 14, WS_TABSTOP
+	PUSHBUTTON 		"Odebrat vybrané", 					IDC_PROCESS_REMOVE, 25, 175, 65, 14, WS_TABSTOP
+	
+	GROUPBOX 		"Služby:", 							-1, 118, 4, 110, 189
+	AUTOCHECKBOX 	"Aktivní", 							IDC_SERVICE_ACTIVE, 188, 1, 35, 14
+	LTEXT 			"_____________________", 			-1, 131, 163, 87, 11
+	LISTBOX 											IDC_SERVICE_LISTBOX, 123, 17, 100, 128, LBS_NOINTEGRALHEIGHT | LBS_HASSTRINGS | LBS_MULTIPLESEL | WS_VSCROLL | WS_HSCROLL | WS_TABSTOP
+	EDITTEXT 											IDC_SERVICE_EDIT, 123, 151, 73, 14, ES_AUTOHSCROLL | WS_TABSTOP
+	PUSHBUTTON 		"Přidat", 								IDC_SERVICE_ADD, 200, 151, 23, 14, WS_TABSTOP
+	PUSHBUTTON 		"Odebrat vybrané", 					IDC_SERVICE_REMOVE, 140, 175, 65, 14, WS_TABSTOP
+	
+	GROUPBOX 		"Plánované úlohy:", 				-1, 232, 4, 110, 189
+	AUTOCHECKBOX 	"Aktivní", 							IDC_TASK_ACTIVE, 302, 1, 35, 14
+	LTEXT 			"_____________________", 			-1, 245, 163, 87, 11
+	LISTBOX 											IDC_TASK_LISTBOX, 237, 17, 100, 128, LBS_NOINTEGRALHEIGHT | LBS_HASSTRINGS | LBS_MULTIPLESEL | WS_VSCROLL | WS_HSCROLL | WS_TABSTOP
+	EDITTEXT 											IDC_TASK_EDIT, 237, 151, 73, 14, ES_AUTOHSCROLL | WS_TABSTOP
+	PUSHBUTTON 		"Přidat", 								IDC_TASK_ADD, 314, 151, 23, 14, WS_TABSTOP
+	PUSHBUTTON 		"Odebrat vybrané", 					IDC_TASK_REMOVE, 254, 175, 65, 14, WS_TABSTOP
+	
+	GROUPBOX 		"Soubory/Složky:",			 		-1, 346, 4, 110, 189
+	AUTOCHECKBOX 	"Aktivní", 							IDC_PATH_ACTIVE, 416, 1, 35, 14
+	LTEXT 			"_____________________", 			-1, 359, 163, 87, 11
+	LISTBOX 											IDC_PATH_LISTBOX, 351, 17, 100, 128, LBS_NOINTEGRALHEIGHT | LBS_HASSTRINGS | LBS_MULTIPLESEL | WS_VSCROLL | WS_HSCROLL | WS_TABSTOP
+	EDITTEXT 											IDC_PATH_EDIT, 351, 151, 73, 14, ES_AUTOHSCROLL | WS_TABSTOP
+	PUSHBUTTON 		"Přidat", 								IDC_PATH_ADD, 428, 151, 23, 14, WS_TABSTOP
+	PUSHBUTTON 		"Odebrat vybrané", 					IDC_PATH_REMOVE, 368, 175, 65, 14, WS_TABSTOP
+	
+	GROUPBOX 		"Klíče registru:", 						-1, 460, 4, 110, 189 
+	AUTOCHECKBOX 	"Aktivní", 							IDC_REGISTRY_ACTIVE, 530, 1, 35, 14 
+	LTEXT 			"_____________________", 			-1, 473, 163, 87, 11 
+	LISTBOX 											IDC_REGISTRY_LISTBOX, 465, 17, 100, 128, LBS_NOINTEGRALHEIGHT | LBS_HASSTRINGS | LBS_MULTIPLESEL | WS_VSCROLL | WS_HSCROLL | WS_TABSTOP
+	EDITTEXT 											IDC_REGISTRY_EDIT, 465, 151, 73, 14, ES_AUTOHSCROLL | WS_TABSTOP
+	PUSHBUTTON 		"Přidat", 								IDC_REGISTRY_ADD, 542, 151, 23, 14, WS_TABSTOP
+	PUSHBUTTON 		"Odebrat vybrané", 					IDC_REGISTRY_REMOVE, 482, 175, 65, 14, WS_TABSTOP
+	
+	GROUPBOX 		"", 								-1, 3, 192, 567, 28
+	PUSHBUTTON 		"Test", 							IDC_TEST, 8, 201, 30, 14, WS_TABSTOP
+	COMBOBOX 											IDC_INTERVAL, 164, 202, 60, 298, CBS_HASSTRINGS | CBS_AUTOHSCROLL | CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+	LTEXT 			"Interval spuštění:", 				-1, 108, 205, 56, 11, WS_TABSTOP
+	PUSHBUTTON 		"Nainstalovat", 					IDC_INSTALL, 226, 201, 60, 14, WS_TABSTOP
+	PUSHBUTTON 		"Odinstalovat", 						IDC_UNINSTALL, 288, 201, 60, 14, WS_TABSTOP
+	LTEXT 			"FalseControl je právě:", 			-1, 351, 205, 86, 9
+	LTEXT 			"", 								IDC_STATUS, 421, 205, 60, 8
+}
+
+STRINGTABLE {
+	IDS_INTERVAL1,	"5 minut"
+	IDS_INTERVAL2,	"10 minut"
+	IDS_INTERVAL3,	"15 minut"
+	IDS_INTERVAL4,	"20 minut"
+	IDS_INTERVAL5,	"25 minut"
+	IDS_INTERVAL6,	"30 minut"
+	IDS_INTERVAL7,	"40 minut"
+	IDS_INTERVAL8,	"50 minut"
+	IDS_INTERVAL9,	"1 hodina"
+	IDS_INTERVAL10,	"1 hodina 30 minut"
+	IDS_INTERVAL11,	"2 hodiny"
+	IDS_INTERVAL12,	"2 hodiny 30 minut"
+	IDS_INTERVAL13,	"3 hodiny"
+	IDS_INTERVAL14,	"4 hodiny"
+	IDS_INTERVAL15,	"5 hodin"
+	IDS_INTERVAL16,	"6 hodin"
+	IDS_INTERVAL17,	"7 hodin"
+	IDS_INTERVAL18,	"8 hodin"
+	IDS_INSTALLED, "Nainstalovaný"
+	IDS_UNINSTALLED, "Odinstalovaný"
+	IDS_ERROR, "Chyba"
+	IDS_SUCCESS, "Úspěch"
+	IDS_WARNING, "Varování"
+	IDS_ERR_TEMPOPEN, "Chyba při otevírání dočasného souboru."
+	IDS_ERR_CREATEPROCESS, "Chyba při vytváření procesu."
+	IDS_ERR_POWERSHELL, "Nezdařilo se otevřit PowerShell 6.0+. Prosím stáhněte a nainstalujte nejnovější dostupnou verzi a zkuste znovu. Pokud ji máte již nainstalovanou, ujistěte se, zda je složka se spustitelnými soubory v PATH."
+	IDS_FIRSTWARNING, "Před prvním nainstalováním se prosím ujistěte, zda jste neudělali žádnou chybu nebo překlep. Tento program je potenciálně destruktivní a jeho špatným zacházením by mohlo dojít ke ztrátě dat, hlavně při používání zástupných znaků. Tato zpráva se zobrazí pouze jednou."
+	IDS_INSTALL_SUCCESS, "Instalace proběhla úspěšně."
+	IDS_INSTALL_FAIL, "Chyba při instalaci. Spustili jste tento program s administrátorským oprávněním?"
+	IDS_UNINSTALL_SUCCESS, "FalseControl byl odinstalován."
+	IDS_UNINSTALL_FAIL, "Chyba při odinstalaci. Spustili jste tento program s administrátorským oprávněním?"
+	IDS_ABOUT_HEADER, "O FalseControl"
+	IDS_ABOUT_TEXT, "FalseControl od backburntletters@gmail.com\n\nv1.0"
+}
+
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+
+1 VERSIONINFO
+FILEVERSION	 1, 0, 0, 0
+PRODUCTVERSION  1, 0, 0, 0
+FILEOS 0x40004
+FILETYPE 0x1
+FILESUBTYPE	0x0 {
+	BLOCK "StringFileInfo" {
+		BLOCK "040904E4" {
+			VALUE "FileDescription", "FalseControl by backburntletters@gmail.com\0"
+			VALUE "FileVersion", "1.0\0"
+			VALUE "ProductName", "FalseControl\0"
+			VALUE "ProductVersion", "1.0\0"
+			VALUE "InternalName", "FalseControl\0"
+		}
+	}
+	BLOCK "VarFileInfo" {
+		VALUE "Translation", 0x0409, 0x04E4
+	}
+}
+
+1 24 "FalseControl.manifest"
