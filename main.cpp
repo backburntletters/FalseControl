@@ -13,7 +13,6 @@
 std::wstring rootDirectory;
 std::wstring filePathScript;
 std::wstring filePathSettings;
-std::wstring filePathInstall;
 
 std::vector<std::wstring> tempFiles;
 
@@ -168,7 +167,13 @@ void addListBoxItem(HWND hwnd, int id, std::wstring data) {
 	if (data != L"ACTIVE" && data != L"INACTIVE" && data != L"INTERVAL") {
 		std::vector<std::wstring> current = getListBoxItems(hwnd, id);
 		if (!(!current.empty() && std::find(current.begin(), current.end(), data) != current.end())) {
-			SendDlgItemMessageW(hwnd, id, LB_ADDSTRING, 0, (WPARAM)data.c_str());
+			if (data.length() > 1 && data[0] == L'\"' && data[data.length() - 1] == L'\"') {					
+				data.erase(0, 1);
+				data.erase(data.length() - 1, 1);
+			}
+			if (data.length() > 0) {
+				SendDlgItemMessageW(hwnd, id, LB_ADDSTRING, 0, (WPARAM)data.c_str());
+			}
 		}
 		updateListBoxHorizontalScroll(hwnd, id);
 	}
@@ -192,11 +197,22 @@ bool isChecked(HWND hwnd, int id) {
 	return false;
 }
 
-std::wstring escapeDoubleQuotes(std::wstring in) {	
+std::wstring escapeDoubleQuotesInPwsh(std::wstring in) {	
 	std::wstring out = in;
 	for (int i = 0; i < out.length(); i++) {
 		if (out[i] == '"') {
 			out.replace(i, 1, L"`\"");
+			i++;
+		}
+	}
+	return out;
+}
+
+std::wstring escapeDoubleQuotes(std::wstring in) {	
+	std::wstring out = in;
+	for (int i = 0; i < out.length(); i++) {
+		if (out[i] == '"') {
+			out.replace(i, 1, L"\\\"");
 			i++;
 		}
 	}
@@ -209,7 +225,7 @@ std::wstring generatePowerShellScript(HWND hwnd) {
 		std::vector<std::wstring> processes = getListBoxItems(hwnd, IDC_PROCESS_LISTBOX);
 		if (processes.size() > 0) {
 			for (int i = 0; i < processes.size(); i++) {
-				std::wstring process = escapeDoubleQuotes(processes[i]);
+				std::wstring process = escapeDoubleQuotesInPwsh(processes[i]);
 				str += L"Get-Process -Name \"" + process + L"\" | Stop-Process -Force\n";
 			}
 		}
@@ -219,7 +235,7 @@ std::wstring generatePowerShellScript(HWND hwnd) {
 		if (services.size() > 0) {
 			str += L"$Services = Get-Service | ?{ ";
 			for (int i = 0; i < services.size(); i++) {
-				std::wstring service = escapeDoubleQuotes(services[i]);
+				std::wstring service = escapeDoubleQuotesInPwsh(services[i]);
 				str += L"$_.Name -Like \"" + service + L"\" ";
 				if (i < services.size() - 1) {
 					str += L"-Or ";
@@ -237,7 +253,7 @@ std::wstring generatePowerShellScript(HWND hwnd) {
 		if (tasks.size() > 0) {
 			str += L"$Tasks = Get-ScheduledTask | ?{ ";
 			for (int i = 0; i < tasks.size(); i++) {
-				std::wstring task = escapeDoubleQuotes(tasks[i]);
+				std::wstring task = escapeDoubleQuotesInPwsh(tasks[i]);
 				str += L"$_.TaskName -Like \"" + task + L"\" ";
 				if (i < tasks.size() - 1) {
 					str += L"-Or ";
@@ -255,7 +271,7 @@ std::wstring generatePowerShellScript(HWND hwnd) {
 		if (paths.size() > 0) {
 			str += L"Get-ChildItem -Path ";
 			for (int i = 0; i < paths.size(); i++) {
-				std::wstring path = escapeDoubleQuotes(paths[i]);
+				std::wstring path = escapeDoubleQuotesInPwsh(paths[i]);
 				str += L"\"" + path + L"\"";
 				if (i < paths.size() - 1) {
 					str += L", ";
@@ -269,7 +285,7 @@ std::wstring generatePowerShellScript(HWND hwnd) {
 		if (keys.size() > 0) {
 			str += L"Get-Item -Path ";
 			for (int i = 0; i < keys.size(); i++) {
-				std::wstring key = escapeDoubleQuotes(keys[i]);
+				std::wstring key = escapeDoubleQuotesInPwsh(keys[i]);
 				str += L"\"Registry::" + key + L"\"";
 				if (i < keys.size() - 1) {
 					str += L", ";
@@ -294,9 +310,9 @@ bool generatePowerShellFile(HWND hwnd) {
 }
 
 std::wstring generateTaskInstallScript(HWND hwnd) {
-	std::wstring str;	
+	std::wstring str;
 	std::wstring intervalString = getControlValue(hwnd, IDC_INTERVAL);
-	std::wstring minutes;
+	std::wstring minutes = L"60";
 	if (intervalString == loadString(IDS_INTERVAL1)) minutes = L"5";
 	if (intervalString == loadString(IDS_INTERVAL2)) minutes = L"10";
 	if (intervalString == loadString(IDS_INTERVAL3)) minutes = L"15";
@@ -311,31 +327,27 @@ std::wstring generateTaskInstallScript(HWND hwnd) {
 	if (intervalString == loadString(IDS_INTERVAL12)) minutes = L"150";
 	if (intervalString == loadString(IDS_INTERVAL13)) minutes = L"180";
 	if (intervalString == loadString(IDS_INTERVAL14)) minutes = L"240";
-	if (intervalString == loadString(IDS_INTERVAL15)) minutes = L"320";
-	if (intervalString == loadString(IDS_INTERVAL16)) minutes = L"400";
-	if (intervalString == loadString(IDS_INTERVAL17)) minutes = L"480";
-	if (intervalString == loadString(IDS_INTERVAL18)) minutes = L"560";
-	str += L"Stop-ScheduledTask -TaskName \"FalseControlTask\"\n";
-	str += L"Unregister-ScheduledTask -TaskName \"FalseControlTask\" -Confirm:$false;\n";
-	str += L"$a = New-ScheduledTaskAction -Execute \"pwsh.exe\" -Argument \'-ExecutionPolicy Bypass -File \"" + filePathScript + L"\"';\n";
-	str += L"$t = New-ScheduledTaskTrigger -AtLogon;\n";
-	str += L"$t.Repetition = (New-ScheduledTaskTrigger -Once -At \"12am\" -RepetitionInterval (New-TimeSpan -Minutes " + minutes + L")).repetition;\n";
-	str += L"$s = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries;\n";
-	str += L"$r = Register-ScheduledTask -TaskName \"FalseControlTask\" -Trigger $t -Action $a -User \"NT AUTHORITY\\SYSTEM\" -Settings $s;\n";
-	str += L"Start-ScheduledTask \"FalseControlTask\";";
+	if (intervalString == loadString(IDS_INTERVAL15)) minutes = L"300";
+	if (intervalString == loadString(IDS_INTERVAL16)) minutes = L"360";
+	if (intervalString == loadString(IDS_INTERVAL17)) minutes = L"420";
+	if (intervalString == loadString(IDS_INTERVAL18)) minutes = L"480";
+	str += 	L"Stop-ScheduledTask -TaskName \"FalseControlTask1\";"
+			L"Unregister-ScheduledTask -TaskName \"FalseControlTask1\" -Confirm:$false;"
+			L"$a1 = New-ScheduledTaskAction -Execute \"pwsh.exe\" -Argument \'-ExecutionPolicy Bypass -NoProfile -NonInteractive -File \"" + filePathScript + L"\"';"
+			L"$t1 = New-ScheduledTaskTrigger -AtLogon;"
+			L"$t1.Repetition = (New-ScheduledTaskTrigger -Once -At \"12am\" -RepetitionInterval (New-TimeSpan -Minutes " + minutes + L")).repetition;"
+			L"$s1 = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries;"
+			L"$r1 = Register-ScheduledTask -TaskName \"FalseControlTask1\" -Trigger $t1 -Action $a1 -User \"NT AUTHORITY\\SYSTEM\" -Settings $s1;"
+			L"Start-ScheduledTask \"FalseControlTask1\";"
+			L"Stop-ScheduledTask -TaskName \"FalseControlTask2\";"
+			L"Unregister-ScheduledTask -TaskName \"FalseControlTask2\" -Confirm:$false;"
+			L"$a2 = New-ScheduledTaskAction -Execute \"pwsh.exe\" -Argument \'-ExecutionPolicy Bypass -NoProfile -NonInteractive -File \"" + filePathScript + L"\"';"
+			L"$t2 = New-ScheduledTaskTrigger -AtLogon;"
+			L"$t2.Repetition = (New-ScheduledTaskTrigger -Once -At \"12am\" -RepetitionInterval (New-TimeSpan -Minutes " + minutes + L")).repetition;"
+			L"$s2 = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries;"
+			L"$r2 = Register-ScheduledTask -TaskName \"FalseControlTask2\" -Trigger $t2 -Action $a2 -User \"NT SERVICE\\TrustedInstaller\" -Settings $s2;"
+			L"Start-ScheduledTask \"FalseControlTask2\";";
 	return str;
-}
-
-bool generateTaskInstallFile(HWND hwnd) {
-	std::wofstream file = std::wofstream(filePathInstall.c_str(), std::ios::binary);
-	file.imbue(std::locale(std::locale(""), new std::codecvt_utf8<wchar_t>));
-	if (file.is_open()) {
-		std::wstring str = generateTaskInstallScript(hwnd);
-		file << str;
-		file.close();
-		return true;
-	}
-	return false;
 }
 
 std::wstring saveSection(HWND hwnd, int active, int listbox, int interval = -1) {
@@ -465,40 +477,19 @@ bool loadSettings(HWND hwnd) {
 	}
 }
 
-std::wstring runProgram(std::wstring cmd, bool output, int variation = 0) {
-	/* TODO: This entire function is garbage, it shouldn't need any temp files in the first place.
-			 It also really likes to break a lot for some various cryptic reasons.
-			 It's just taped together at this point. */
+std::wstring runProgram(std::wstring cmd, bool output = false) {
 	std::wstring out = L"";
 	STARTUPINFOW si = {sizeof(si)};
 	PROCESS_INFORMATION pi;
 
 	std::wstring fileName = createTempFile();
 	std::wstring cmdString;
-	if (variation == 0) {
-		cmdString = L"cmd.exe /C " + cmd;
-		if (output) {
-			cmdString += L" > \"" + fileName + L"\"";
-		}
-	}
-	else if (variation == 1) {
-		cmdString = L"pwsh.exe -Command $PSDefaultParameterValues['Out-File:Width'] = 2000; " + cmd;
-		if (output) {
-			cmdString += L" | Out-File -Encoding 'utf8' -FilePath \"" + fileName + L"\"";
-		}
-	}
-	else if (variation == 2) {
-		cmdString = L"pwsh.exe -Command \"" + cmd;
-		if (output) {
-			cmdString += L" | Out-File -Encoding 'utf8' -NoNewline -FilePath '" + fileName + L"'";
-		}
-		cmdString += L"\"";
-	}
-	else if (variation == 3) {
-		cmdString = cmd;
+	cmdString = L"cmd.exe /C " + cmd;
+	if (output) {
+		cmdString += L" > \"" + fileName + L"\"";
 	}
 	if (CreateProcessW(NULL, cmdString.data(), NULL, NULL, false, CREATE_NEW_PROCESS_GROUP | CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) {
-		WaitForSingleObject(pi.hProcess, 5000);
+		WaitForSingleObject(pi.hProcess, 30000);
 		if (output) {
 			std::wifstream file = std::wifstream(fileName.c_str(), std::ios::binary);
 			std::wstringstream buffer;
@@ -521,18 +512,47 @@ std::wstring runProgram(std::wstring cmd, bool output, int variation = 0) {
 	return out;
 }
 
-std::wstring runPowerShell(std::wstring cmd, bool output) {
-	return runProgram(cmd, output, 1);
-}
+std::wstring runPowerShell(std::wstring cmd, bool output = false) {
+	std::wstring out = L"";
+	STARTUPINFOW si = {sizeof(si)};
+	PROCESS_INFORMATION pi;
 
-std::wstring runPowerShell2(std::wstring cmd, bool output) {
-	return runProgram(cmd, output, 2);
+	std::wstring fileName = createTempFile();
+	std::wstring cmdString;
+	cmdString = L"pwsh.exe -NoProfile -NonInteractive -Command \"" + escapeDoubleQuotes(cmd);
+	if (output) {
+		cmdString += L" | Out-File -Width 2000 -Encoding 'utf8' -FilePath \"" + fileName + L"\"";
+	}
+	cmdString += L"\"";
+	if (CreateProcessW(NULL, cmdString.data(), NULL, NULL, false, CREATE_NEW_PROCESS_GROUP | CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) {
+		WaitForSingleObject(pi.hProcess, 30000);
+		if (output) {
+			std::wifstream file = std::wifstream(fileName.c_str(), std::ios::binary);
+			std::wstringstream buffer;
+			if (file.is_open()) {
+				buffer << file.rdbuf();
+				file.close();
+				out = buffer.str();
+			}
+			else {
+				MessageBoxW(NULL, loadString(IDS_ERR_TEMPOPEN).c_str(), loadString(IDS_ERROR).c_str(), MB_OK | MB_ICONSTOP | MB_TOPMOST | MB_SYSTEMMODAL);
+			}
+		}
+	}
+	else {
+		MessageBoxW(NULL, loadString(IDS_ERR_CREATEPROCESS).c_str(), loadString(IDS_ERROR).c_str(), MB_OK | MB_ICONSTOP | MB_TOPMOST | MB_SYSTEMMODAL);
+	}	
+
+	CloseHandle(pi.hProcess);
+	CloseHandle(pi.hThread);
+	return out;
 }
 
 bool isTaskInstalled() {
-	// TODO: Improve this awful abomination, it also sometimes doesn't return like anything at all whyyyyyy
-	std::wstring installed = runPowerShell2(L"Get-ScheduledTask -TaskName \"FalseControlTask\" | Measure-Object | Format-List -Property \"Count\" | Out-String | % { $_.Trim() }", true);
-	if (installed == L"Count : 1") {
+	std::wstring installed = runPowerShell(L"(Get-ScheduledTask -TaskName \"FalseControlTask1\").Count | Out-String | % { $_.Trim() }", true);
+	if (installed == L"1" || // it just works
+		(installed == L"1\r\n" || installed == L"1\r\n\r\n") ||
+		(installed == L"1\n" || installed == L"1\n\n")) {
 		return true;
 	}
 	else {
@@ -679,7 +699,6 @@ INT_PTR CALLBACK DialogProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 				
 				case IDC_TEST: {
 					openTempStringInSystemEditorWrap(generatePowerShellScript(hwnd));
-					openTempStringInSystemEditorWrap(generateTaskInstallScript(hwnd));
 					break;
 				}
 				
@@ -696,14 +715,9 @@ INT_PTR CALLBACK DialogProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 					}
 					if (saveSettings(hwnd)) {
 						if (generatePowerShellFile(hwnd)) {
-							if (generateTaskInstallFile(hwnd)) {
-								runProgram(L"pwsh.exe -ExecutionPolicy Bypass -File \"" + filePathInstall + L"\"", false, 3);
-								if (updateInstalledStatus(hwnd)) {
-									MessageBoxW(NULL, loadString(IDS_INSTALL_SUCCESS).c_str(), loadString(IDS_SUCCESS).c_str(), MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SYSTEMMODAL);
-								}
-								else {
-									failed = true;
-								}
+							runPowerShell(generateTaskInstallScript(hwnd), false);
+							if (updateInstalledStatus(hwnd)) {
+								MessageBoxW(NULL, loadString(IDS_INSTALL_SUCCESS).c_str(), loadString(IDS_SUCCESS).c_str(), MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SYSTEMMODAL);
 							}
 							else {
 								failed = true;
@@ -723,12 +737,15 @@ INT_PTR CALLBACK DialogProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 				}
 				
 				case IDC_UNINSTALL: {
-					runPowerShell(L"Stop-ScheduledTask -TaskName \"FalseControlTask\"; Unregister-ScheduledTask -TaskName \"FalseControlTask\" -Confirm:$false;", false);
+					runPowerShell(
+						L"Stop-ScheduledTask -TaskName \"FalseControlTask\"; Unregister-ScheduledTask -TaskName \"FalseControlTask\" -Confirm:$false;"
+						L"Stop-ScheduledTask -TaskName \"FalseControlTask1\"; Unregister-ScheduledTask -TaskName \"FalseControlTask1\" -Confirm:$false;"
+						L"Stop-ScheduledTask -TaskName \"FalseControlTask2\"; Unregister-ScheduledTask -TaskName \"FalseControlTask2\" -Confirm:$false;", false);
 					if (!updateInstalledStatus(hwnd)) {
 						MessageBoxW(NULL, loadString(IDS_UNINSTALL_SUCCESS).c_str(), loadString(IDS_SUCCESS).c_str(), MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SYSTEMMODAL);
 					}
 					else {
-						MessageBoxW(NULL, loadString(IDS_UNINSTALL_SUCCESS).c_str(), loadString(IDS_ERROR).c_str(), MB_OK | MB_ICONSTOP | MB_TOPMOST | MB_SYSTEMMODAL);
+						MessageBoxW(NULL, loadString(IDS_UNINSTALL_FAIL).c_str(), loadString(IDS_ERROR).c_str(), MB_OK | MB_ICONSTOP | MB_TOPMOST | MB_SYSTEMMODAL);
 					}
 					break;
 				}
@@ -762,6 +779,7 @@ INT_PTR CALLBACK DialogProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			break;
 		}
 		case WM_DESTROY: {
+			deleteTempFiles();
 			PostQuitMessage(0);
 			return 1;
 			break;
@@ -788,7 +806,6 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
 	
 	filePathSettings = rootDirectory + L"FalseControl.cfg";
 	filePathScript = rootDirectory + L"FalseControl.ps1";
-	filePathInstall = rootDirectory + L"FalseControlInstall.ps1";
 	
 	HWND hwnd = CreateDialog(hInstance, MAKEINTRESOURCE(IDD_MAIN), NULL, DialogProc);
 	ShowWindow(hwnd, nCmdShow);
@@ -801,6 +818,7 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-	} 
+	}
+	deleteTempFiles();
 	return 0;
 }

@@ -2,7 +2,7 @@
 
 ![FalseControl Preview][preview]
 
-`FalseControl` is a small Windows utility for keeping your computer clean of unwanted services, files and programs. The program works by creating its own scheduled task that periodically executes a generated PowerShell script of doom on login and on interval. Finally the need to create a PowerShell script and creating a task for it manually is over. The program is divided into 5 different columns, each having its own purpose. By invoking the power of `NT AUTHORITY/SYSTEM`, everything inside these 5 columns will be destroyed. Since the input is fed into PowerShell, wildcard filtering is possible (be careful!). The input is case-insensitive. The columns are as follows:
+`FalseControl` is a small Windows utility for keeping your computer clean of unwanted services, files and programs. The program works by creating its own scheduled task that periodically executes a generated PowerShell script of doom on login and on interval. Finally the need to create a PowerShell script and creating a task for it manually is over. The program is divided into 5 different columns, each having its own purpose. By invoking the power of `NT AUTHORITY/SYSTEM` and `NT SERVICE/TrustedInstaller`, everything inside these 5 columns will be destroyed. Since the input is fed into PowerShell, wildcard filtering is possible (be careful!). The input is case-insensitive. The columns are as follows:
 * Processes - Process name. Killed. Don't put ".exe" at the end. Example:
     ```sh
     explorer
@@ -58,7 +58,7 @@ Anyone wanna try out putting `*` in all 5 columns?
 ## Requirements
 
 * Windows 11+ _(maybe 10? not tested)_
-* [PowerShell 6.0+](https://learn.microsoft.com/en-us/powershell/scripting/install/install-powershell-on-windows)
+* [Latest PowerShell](https://learn.microsoft.com/en-us/powershell/scripting/install/install-powershell-on-windows)
 
 ## How to compile
 
@@ -70,14 +70,17 @@ g++ resource.o main.o -o "FalseControl.exe" -std=c++23 -luuid -mwindows -municod
 
 ## Use cases
 
-* HP users can finally delete zombie services that keep coming back on every update automatically. (sorry it won't fix the physical hinge problem [or complete lack of it problem])
+* Combat Windows Update - Delete zombie services and programs that keep coming back on every update automatically.
 * Clean your temporary folders periodically.
-* You can install and immediately uninstall to do something only once, like killing some processes to free up resources.
-* You are forced to use Windows because if you try to install Linux it suspiciously makes your computer unable to measure temperatures correctly when going to sleep mode causing it to get more and more hot without stopping to the point when touching the shell burns your fingers and it becomes an actual fire hazard. How convenient for Microsoft that it never happens on Windows.
+* Destroy Microsoft Edge.
+* Destroy school computers. (nooo don't dew it)
+* You can install and immediately uninstall to do something only once, like killing some processes to free up resources, or deleting files.
+* Very useful if you are forced to use Windows because if you try to install Linux it suspiciously makes your computer unable to measure temperatures correctly when going to sleep mode causing it to get more and more hot without stopping to the point when touching the shell burns your fingers and it becomes an actual fire hazard. How convenient for Microsoft that it never happens on Windows.
 
 ## Limitations
 
-* If something is invulnerable to the power of `NT AUTHORITY/SYSTEM`, this program won't help you. In that case, the only viable and humane solution to your problem is to throw your computer out of the window for peace of mind.
+* The PowerShell script has to run twice for both `NT AUTHORITY/SYSTEM` and `NT SERVICE/TrustedInstaller`. It would be cool if you would only need one of them, but in some cases one needs the privileges of another, so both are run just in case.
+* If something is invulnerable to the power of `NT AUTHORITY/SYSTEM` and `NT SERVICE/TrustedInstaller`, this program won't help you. In that case, the only viable and humane solution to your problem is to throw your computer out of the window for peace of mind.
 * You can't delete individual values in registry, only whole folders (keys).
 * The program hangs for a second when it calls PowerShell. This is normal (sync coding).
 
@@ -85,9 +88,9 @@ g++ resource.o main.o -o "FalseControl.exe" -std=c++23 -luuid -mwindows -municod
 
 * The program needs testing.
     * Does it work on Windows 10?
-    * Only tested on the NTFS file system. Don't know how will it behave on others. Didn't test.
+    * Does the script function when you put in a ton of UTF-8 characters?
     * I didn't test if the script can hang on service or task stopping, it didn't happen for me.
-* The code is bad. I hope newer PowerShell versions don't change much so it doesn't break.
+* The code is bad.
 
 _It's called FalseControl since it really only gives you a false sense of control. In reality, you shouldn't need this kind of program in the first place. But what can you do..._
 

@@ -7,8 +7,8 @@ LANGUAGE LANG_ENGLISH, SUBLANG_DEFAULT
 
 MAINMENU MENU {
 	POPUP "&Utility" {
-		MENUITEM "List all &service names", IDR_LIST_SERVICES
-		MENUITEM "List all scheduled &tasks", IDR_LIST_TASKS
+		MENUITEM "List all service names", IDR_LIST_SERVICES
+		MENUITEM "List all scheduled tasks", IDR_LIST_TASKS
 		MENUITEM SEPARATOR
 		MENUITEM "&About", IDR_ABOUT
 	}
@@ -98,14 +98,14 @@ STRINGTABLE {
 	IDS_WARNING, "Warning"
 	IDS_ERR_TEMPOPEN, "Failed to open temporary file."
 	IDS_ERR_CREATEPROCESS, "Failed to create process."
-	IDS_ERR_POWERSHELL, "Failed to open PowerShell 6.0+. Please download and install the latest available version and try again. If you already have it installed, make sure the binary folder is in PATH."
+	IDS_ERR_POWERSHELL, "Failed to open PowerShell (pwsh.exe). Please download and install the latest available version and try again. If you already have it installed, make sure the binary folder is in PATH."
 	IDS_FIRSTWARNING, "Before installing for the first time, please double check if you haven't made any mistakes or typos. This program is potentially destructive and could lead to data loss if not handled correctly, especially when using wildcards. This message will pop-up only once."
 	IDS_INSTALL_SUCCESS, "Settings applied successfully."
 	IDS_INSTALL_FAIL, "Failed to apply and install. Are you running this program as administrator?"
 	IDS_UNINSTALL_SUCCESS, "FalseControl has been uninstalled."
 	IDS_UNINSTALL_FAIL, "Failed to uninstall FalseControl. Are you running this program as administrator?"
 	IDS_ABOUT_HEADER, "About"
-	IDS_ABOUT_TEXT, "FalseControl by backburntletters@gmail.com\n\nv1.0"
+	IDS_ABOUT_TEXT, "FalseControl by backburntletters@gmail.com\n\nv1.1"
 }
 
 LANGUAGE LANG_CZECH, SUBLANG_DEFAULT
@@ -201,21 +201,21 @@ STRINGTABLE {
 	IDS_WARNING, "Varování"
 	IDS_ERR_TEMPOPEN, "Chyba při otevírání dočasného souboru."
 	IDS_ERR_CREATEPROCESS, "Chyba při vytváření procesu."
-	IDS_ERR_POWERSHELL, "Nezdařilo se otevřit PowerShell 6.0+. Prosím stáhněte a nainstalujte nejnovější dostupnou verzi a zkuste znovu. Pokud ji máte již nainstalovanou, ujistěte se, zda je složka se spustitelnými soubory v PATH."
+	IDS_ERR_POWERSHELL, "Nezdařilo se otevřit PowerShell (pwsh.exe). Prosím stáhněte a nainstalujte nejnovější dostupnou verzi a zkuste znovu. Pokud ji máte již nainstalovanou, ujistěte se, zda je složka se spustitelnými soubory v PATH."
 	IDS_FIRSTWARNING, "Před prvním nainstalováním se prosím ujistěte, zda jste neudělali žádnou chybu nebo překlep. Tento program je potenciálně destruktivní a jeho špatným zacházením by mohlo dojít ke ztrátě dat, hlavně při používání zástupných znaků. Tato zpráva se zobrazí pouze jednou."
 	IDS_INSTALL_SUCCESS, "Instalace proběhla úspěšně."
 	IDS_INSTALL_FAIL, "Chyba při instalaci. Spustili jste tento program s administrátorským oprávněním?"
 	IDS_UNINSTALL_SUCCESS, "FalseControl byl odinstalován."
 	IDS_UNINSTALL_FAIL, "Chyba při odinstalaci. Spustili jste tento program s administrátorským oprávněním?"
 	IDS_ABOUT_HEADER, "O FalseControl"
-	IDS_ABOUT_TEXT, "FalseControl od backburntletters@gmail.com\n\nv1.0"
+	IDS_ABOUT_TEXT, "FalseControl od backburntletters@gmail.com\n\nv1.1"
 }
 
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 
 1 VERSIONINFO
 FILEVERSION	 1, 0, 0, 0
-PRODUCTVERSION  1, 0, 0, 0
+PRODUCTVERSION  1, 1, 0, 0
 FILEOS 0x40004
 FILETYPE 0x1
 FILESUBTYPE	0x0 {
@@ -224,7 +224,7 @@ FILESUBTYPE	0x0 {
 			VALUE "FileDescription", "FalseControl by backburntletters@gmail.com\0"
 			VALUE "FileVersion", "1.0\0"
 			VALUE "ProductName", "FalseControl\0"
-			VALUE "ProductVersion", "1.0\0"
+			VALUE "ProductVersion", "1.1\0"
 			VALUE "InternalName", "FalseControl\0"
 		}
 	}
